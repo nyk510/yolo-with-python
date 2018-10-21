@@ -11,7 +11,7 @@ def get_output_layers(net):
     return output_layers
 
 
-class Cv2YOLODetector(object):
+class CV2YOLODetector(object):
     """
     cv2 の dnn モジュールを用いて yolo を実行する detector
 
@@ -24,7 +24,7 @@ class Cv2YOLODetector(object):
     その後 cv2 形式 (BGR) の画像を `predict` で渡します.
 
     ```python
-    detector = Cv2YOLODetector()
+    detector = CV2YOLODetector()
     img = cv2.imread('sample.jpg')
     detector.predict(img)
     ```
@@ -39,14 +39,14 @@ class Cv2YOLODetector(object):
             raise ValueError('invalid model name')
 
         self.model_config = model_config
-        self.weight_path = os.path.join(Cv2YOLODetector.weight_dir, model + '.weight')
-        self.conf_path = os.path.join(Cv2YOLODetector.weight_dir, model + '.cfg')
+        self.weight_path = os.path.join(CV2YOLODetector.weight_dir, model + '.weight')
+        self.conf_path = os.path.join(CV2YOLODetector.weight_dir, model + '.cfg')
         self.input_shape = model_config.get('input_shape', None)
         self.logger = get_logger('cv2-yolo')
 
         self._prepare_setting_files(force_download)
 
-        self.net = cv2.dnn.readNet(weight_path, conf_path)
+        self.net = cv2.dnn.readNet(self.weight_path, self.conf_path)
         self.output_layers = get_output_layers(self.net)
 
     def _prepare_setting_files(self, force=False):
