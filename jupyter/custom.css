@@ -1,0 +1,12 @@
+body {
+  font-family: ubuntu;
+}
+
+pre,
+.CodeMirror pre,
+.prompt,
+div.output_area pre,
+.completions select {
+  font-family: Source Han Code JP, ubuntu mono;
+  /* font-size: 12px; */
+}

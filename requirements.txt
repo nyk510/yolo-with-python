@@ -1,0 +1,12 @@
+jupyter
+notebook
+tqdm
+matplotlib
+numpy
+scipy
+pandas
+numba
+opencv-python
+opencv-contrib-python
+imutils
+pillow

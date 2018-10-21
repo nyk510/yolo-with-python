@@ -1,0 +1,19 @@
+version: '2.3'
+services:
+  jupyter:
+    build:
+      context: ./
+      dockerfile: ./docker/Dockerfile
+    image: yolo-with-python
+    container_name: ${CONTAINER_NAME}
+    ports:
+      - ${JUPYTER_PORT}:8888
+    volumes:
+      - ./:/home
+      # apply your local custom.css
+      - ./jupyter/custom.css:/root/.jupyter/custom/custom.css
+    environment:
+     # root のホームディレクトリに python の path を通すことで
+     # プロジェクトルートに配置した自作のモジュールを import できるようにしている
+     - PYTHONPATH=/home/
+    env_file: .env
