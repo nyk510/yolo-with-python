@@ -1,6 +1,56 @@
 # coding: utf-8
+from time import time
+
 import cv2
 import numpy as np
+
+from .utils import get_logger
+
+
+class AbstractVideoStream(object):
+    """
+    動画ファイルを読み込んでフレームごとに何らかの操作を行うロジックの抽象クラス.
+    使用する際には update, before_read, after_read などを override して使用してください.
+    """
+
+    def __init__(self, video_path, log_level='INFO'):
+        self.video_path = video_path
+        self.cap = cv2.VideoCapture(self.video_path)
+        self.fps = int(self.cap.get(cv2.CAP_PROP_FPS))
+        self.logger = get_logger('video-stream', log_level=log_level)
+
+        self.start_time = None
+        self.end_time = None
+
+    def run(self):
+        frame_counter = 0
+        self.before_read()
+        self.start_time = time()
+        self.logger.info('start loading')
+        while True:
+            ret, frame = self.cap.read()
+
+            if not ret:
+                break
+
+            frame_counter += 1
+            self.update(frame, frame_counter)
+        self.end_time = time()
+        self.after_read(frame_counter)
+        return frame_counter
+
+    def update(self, frame, frame_counter):
+        pass
+
+    def before_read(self):
+        pass
+
+    def after_read(self, total_frame):
+        duration = self.end_time - self.start_time
+        time_per_frame = duration / total_frame
+
+        self.logger.info('finished')
+        self.logger.info('{:.3f} [sec/frame]'.format(time_per_frame))
 
 
 class BoundingBox(object):
