@@ -14,6 +14,11 @@ class AbstractVideoStream(object):
     """
 
     def __init__(self, video_path, log_level='INFO'):
+        """
+        Args:
+            video_path(str): 読み込む動画への path を指定します.
+            log_level(str): logging のレベルを指定します.
+        """
         self.video_path = video_path
         self.cap = cv2.VideoCapture(self.video_path)
         self.fps = int(self.cap.get(cv2.CAP_PROP_FPS))
@@ -23,6 +28,12 @@ class AbstractVideoStream(object):
         self.end_time = None
 
     def run(self):
+        """
+        動画読み込みを開始するメソッド
+
+        Returns:
+            int: 動画の total count
+        """
         frame_counter = 0
         self.before_read()
         self.start_time = time()
@@ -40,6 +51,13 @@ class AbstractVideoStream(object):
         return frame_counter
 
     def update(self, frame, frame_counter):
+        """
+        動画の各フレームに対して呼び出されるメソッドです
+
+        Args:
+            frame(np.ndarray):
+            frame_counter(int):
+        """
         pass
 
     def before_read(self):
