@@ -1,7 +1,6 @@
+# coding: utf-8
 import cv2
 import numpy as np
-
-from .utils import get_logger
 
 
 class BoundingBox(object):
@@ -56,12 +55,15 @@ def draw_bbox(img, bbox, color=None, line_width=3):
     """
     画像に対して bounding box の長方形を描く関数
 
-    :param np.ndarray img: cv2 image
-    :param BoundingBox bbox:
-    :param iterable[int] color:
-    :param int line_width:
-    :return: 描画後の画像
-    :rtype: np.ndarray
+    Args:
+        img (np.ndarray):
+        bbox (BoundingBox):
+        color (iterable[int]):
+        line_width (int):
+
+    Returns:
+        np.ndarray: 描画後の画像
+
     """
     drawn = np.copy(img)
     if color is None:
@@ -75,8 +77,6 @@ def draw_bbox(img, bbox, color=None, line_width=3):
 
 def draw_text(img, position, text, size=1, color=None):
     """
-    画像の numpy 配列に文字列を描画した画像を返す関数
-
     :param np.ndarray img: cv2 image.
     :param iterable[int] position:
         記述するテキストの左下の座標. tuple もしくは list で指定.

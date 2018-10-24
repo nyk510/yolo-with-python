@@ -1,11 +1,24 @@
-import cv2
-import numpy as np
+# coding: utf-8
 import os
 
-from .utils import download_file, get_logger
+import cv2
+import numpy as np
+
 from .config import YOLO_CONFIGS
+from .utils import download_file, get_logger
+
 
 def get_output_layers(net):
+    """
+    cv2.dnn_Net インスタンスから出力層の layer の名前の文字列を取得する
+
+    Args:
+        net (cv2.dnn_Net):
+
+    Returns:
+        list(str): 出力層のレイヤ名の配列
+
+    """
     layer_names = net.getLayerNames()
     output_layers = [layer_names[i[0] - 1] for i in net.getUnconnectedOutLayers()]
     return output_layers
@@ -15,32 +28,32 @@ class CV2YOLODetector(object):
     """
     cv2 の dnn モジュールを用いて yolo を実行する detector
 
-    ## requirements
-    * 使いたい yolo の重みと設定ファイル (.cfg)
-
     ## Usage
 
     先に用意した重みと config ファイルへのパスを instance 生成時に渡します.
     その後 cv2 形式 (BGR) の画像を `predict` で渡します.
 
-    ```python
-    detector = CV2YOLODetector()
-    img = cv2.imread('sample.jpg')
-    detector.predict(img)
-    ```
+    Examples:
+        >>> detector = CV2YOLODetector()
+        >>> img = cv2.imread('sample.jpg')
+        >>> results = detector.predict(img)
+        >>> print(results)
     """
-    weight_dir = '/home/weights'
+    data_dir = '/home/weights'
 
     def __init__(self, model='YOLOv3-416', force_download=False):
         """
+        Args:
+            model (str): YOLO model name
+            force_download (bool): True のとき local に重みと設定ファイルがある場合でも再度 Download を行います
         """
         model_config = YOLO_CONFIGS.get(model, None)
         if model_config is None:
             raise ValueError('invalid model name')
 
         self.model_config = model_config
-        self.weight_path = os.path.join(CV2YOLODetector.weight_dir, model + '.weight')
-        self.conf_path = os.path.join(CV2YOLODetector.weight_dir, model + '.cfg')
+        self.weight_path = os.path.join(self.data_dir, model + '.weight')
+        self.conf_path = os.path.join(self.data_dir, model + '.cfg')
         self.input_shape = model_config.get('input_shape', None)
         self.logger = get_logger('cv2-yolo')
 
@@ -55,22 +68,28 @@ class CV2YOLODetector(object):
         for url, local_path in zip((weight_url, config_url,), (self.weight_path, self.conf_path)):
             if not force and os.path.exists(local_path):
                 continue
-            self.logger.info('download from {}'.format(url))
+            self.logger.info('download from {} to {}'.format(url, local_path))
             download_file(url, local_path)
 
     def predict(self, img, min_confidence=.5, nms_threshold=.4, only_person=True):
         """
-        物体領域検知を実行する
-        :param img: 検知対象の画像. cv2 で読み込んだ画像である必要がある (i.e. BGR)
-        :param float min_confidence: 予測されたクラス確率の最小値. これを下回る確率の物体は検知されない.
-        :param float nms_threshold:
-            non-maximum-suppression を実行する際の IOU のしきい値.
-            0に近い値になるほど一部でも領域がかぶるとひとつの物体として grouping するようになる.
-            反対に1に近づくと領域が重なっていても異なる物体とみなすようになる
-        :param bool only_person: `True` のとき人クラスのみを考慮する
-        :return: クラスid, クラスの確率, bounding box の tuple の list
-            bounding-box は left, top, width, height の順
-            物体が検知されたなかった場合には空のリスト `[]` を返します
+        画像に対して物体検知を実行します
+
+        Args:
+            img:
+            min_confidence (float):
+                予測されたクラス確率の最小値. これを下回る確率の物体は検知されない.
+            nms_threshold (float):
+                non-maximum-suppression を実行する際の IOU のしきい値.
+                0に近い値になるほど一部でも領域がかぶるとひとつの物体として grouping するようになる.
+                反対に1に近づくと領域が重なっていても異なる物体とみなすようになる
+            only_person (bool): `True` のとき人クラスのみを考慮する
+
+        Returns:
+            list[int, float, tuple(float)]:
+                検知された物体を表す配列。
+                各要素の第一引数が物体の id, 第二次元が確率, 第三次元が bounding box を表す tuple.
+
         """
         blob = cv2.dnn.blobFromImage(img, 1. / 255, self.input_shape, (0, 0, 0), True, crop=False)
         self.net.setInput(blob)
@@ -109,7 +128,8 @@ class CV2YOLODetector(object):
         if len(confidences) == 0:
             return []
 
-        # Non Maximum Supression を行って bbox の数を賢く減らす
+        # Non Maximum Suppression を行って bbox の数を賢く減らす
         indices = cv2.dnn.NMSBoxes(boxes, confidences, min_confidence, nms_threshold)
-        results = [(class_ids[idx], confidences[idx], boxes[idx]) for idx in indices.reshape(-1)]
+
+        results = [(class_ids[idx], confidences[idx], boxes[idx],) for idx in indices.reshape(-1)]
         return results
