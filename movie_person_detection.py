@@ -33,7 +33,8 @@ class SimplePersonDetectVideoStream(AbstractVideoStream):
 
 
 def parse_arguments():
-    parser = argparse.ArgumentParser('movie person detection', formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+    parser = argparse.ArgumentParser('movie person detection',
+                                     formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument('-f', '--file', required=True, type=str)
     return parser.parse_args()
 
