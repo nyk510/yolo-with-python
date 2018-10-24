@@ -44,8 +44,10 @@ class CV2YOLODetector(object):
     def __init__(self, model='YOLOv3-416', force_download=False):
         """
         Args:
-            model (str): YOLO model name
-            force_download (bool): True のとき local に重みと設定ファイルがある場合でも再度 Download を行います
+            model (str):
+                YOLO model name
+            force_download (bool):
+                True のとき local に重みと設定ファイルがある場合でも再度 Download を行います
         """
         model_config = YOLO_CONFIGS.get(model, None)
         if model_config is None:
@@ -71,12 +73,14 @@ class CV2YOLODetector(object):
             self.logger.info('download from {} to {}'.format(url, local_path))
             download_file(url, local_path)
 
-    def predict(self, img, min_confidence=.5, nms_threshold=.4, only_person=True):
+    def predict(self, img, min_confidence=.5, nms_threshold=.4, only_person=False):
         """
         画像に対して物体検知を実行します
 
         Args:
-            img:
+            img (np.ndarray):
+                物体検知を行う画像. cv2.imread の画像を指定します.
+                すなわち RGB ではなく BGR の画像である必要があります.
             min_confidence (float):
                 予測されたクラス確率の最小値. これを下回る確率の物体は検知されない.
             nms_threshold (float):
