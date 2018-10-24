@@ -5,7 +5,7 @@ services:
       context: ./
       dockerfile: ./docker/Dockerfile
     image: yolo-with-python
-    container_name: ${CONTAINER_NAME}
+    container_name: yolo-with-python-app
     ports:
       - ${JUPYTER_PORT}:8888
     volumes:
