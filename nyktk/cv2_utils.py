@@ -45,7 +45,10 @@ class AbstractVideoStream(object):
                 break
 
             frame_counter += 1
-            self.update(frame, frame_counter)
+            try:
+                self.update(frame, frame_counter)
+            except StopIteration:
+                break
         self.end_time = time()
         self.after_read(frame_counter)
         return frame_counter
