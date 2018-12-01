@@ -4,7 +4,7 @@ import os
 import cv2
 import numpy as np
 
-from .config import YOLO_CONFIGS
+from .config import YOLO_CONFIGS, WEIGHT_DIR
 from .utils import download_file, get_logger
 
 
@@ -39,7 +39,7 @@ class CV2YOLODetector(object):
         >>> results = detector.predict(img)
         >>> print(results)
     """
-    data_dir = '/home/weights'
+    data_dir = WEIGHT_DIR
 
     def __init__(self, model='YOLOv3-416', force_download=False):
         """
